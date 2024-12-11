@@ -1,0 +1,110 @@
+﻿@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+@model IEnumerable<Domain.Models.BookModel>
+
+@{
+    ViewData["Title"] = "Manage Books";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">
+        <i class="bi bi-plus-circle"></i> Create New Book
+    </a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Author</th>
+            <th>Quantity</th>
+            <th>Price</th>
+            <th>Publisher</th>
+            <th>Available</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var book in Model)
+        {
+            <tr>
+                <td>@book.Title</td>
+                <td>@book.Author</td>
+                <td>@book.Quantity</td>
+                <td>@String.Format("{0:C}", @book.Price)</td>
+                <td>@book.Publisher</td>
+                <td>@(book.Available ? "Yes" : "No")</td>
+                <td>
+                    <button class="btn btn-success" onclick="showQuantityForm(@book.Id)" title="Add to Cart">
+                        <i class="bi bi-cart-plus"></i> 
+                    </button>
+                    <a asp-action="Details" asp-route-id="@book.Id" class="btn btn-info" title="Details">
+                        <i class="bi bi-info-circle"></i> 
+                    </a>
+                    <a asp-action="Edit" asp-route-id="@book.Id" class="btn btn-warning" title="Edit">
+                        <i class="bi bi-pencil-square"></i>
+                    </a>
+                    <a asp-action="Delete" asp-route-id="@book.Id" class="btn btn-danger" title="Delete">
+                        <i class="bi bi-trash"></i> 
+                    </a>
+                </td>
+            </tr>
+        }
+        <div id="quantityForm" style="display: none;">
+            <div class="quantity-form-container">
+                <form id="addToCartForm" method="post" action="@Url.Action("Create", "Carts", new { area = "Admin" })">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" id="bookId" name="bookId"/>
+                    <div class="form-group">
+                        <label for="quantity">Quantity</label>
+                        <input type="number" id="quantity" name="quantity" min="1" class="form-control" required />
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add to Cart</button>
+                    <button type="button" class="btn btn-secondary" onclick="hideQuantityForm()">Cancel</button>
+                </form>
+
+            </div>
+        </div>
+    </tbody>
+</table>
+<style>
+    #quantityForm {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+    }
+
+    .quantity-form-container {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        width: 300px;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+</style>
+
+<script>
+    function showQuantityForm(bookId) {
+        document.getElementById("quantityForm").style.display = "flex";
+        document.getElementById("bookId").value = bookId; 
+    }
+
+    function hideQuantityForm() {
+        document.getElementById("quantityForm").style.display = "none";
+    }
+</script>

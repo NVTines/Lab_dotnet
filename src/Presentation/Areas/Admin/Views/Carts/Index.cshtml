@@ -1,0 +1,139 @@
+﻿@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+@model Domain.Models.CartModel
+
+@{
+    ViewData["Title"] = "Manage Carts";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<div class="card shadow-sm mt-4">
+    <div class="card-body">
+        <h4 class="card-title text-primary mb-4">Cart for @Model.User.Username</h4>
+
+        <dl class="row">
+            <dt class="col-sm-3 font-weight-bold">User</dt>
+            <dd class="col-sm-9">@Model.User.Username</dd>
+
+            <dt class="col-sm-3 font-weight-bold">Created On</dt>
+            <dd class="col-sm-9">@Model.CreatedOn</dd>
+
+            <dt class="col-sm-3 font-weight-bold">Updated On</dt>
+            <dd class="col-sm-9">@Model.UpdatedOn</dd>
+        </dl>
+    </div>
+</div>
+<h3>Cart Items</h3>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Book Title</th>
+            <th>Book Title</th>
+            <th>Quantity</th>
+            <th>Price</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    @foreach (var item in Model.CartItems)
+    {
+        <tr>
+            <td>@item.Id</td>
+            <td>@item.Book.Title</td>
+            <td>@item.Quantity</td>
+            <td>@String.Format("{0:C}", @item.Book.Price)</td>
+            <td>
+                <a onclick="showQuantityForm(@item.CartId, @item.Id, @item.Book.Id)" class="btn btn-warning">
+                    <i class="bi bi-pencil-square"></i> Edit
+                </a>
+                <a onclick="showDeleteForm(@item.Id)" class="btn btn-danger">
+                    <i class="bi bi-trash"></i> Delete
+                </a>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+<div id="quantityForm" style="display: none;">
+    <div class="quantity-form-container">
+        <form id="addToCartForm" method="post" asp-action="Edit">
+            @Html.AntiForgeryToken()
+            <input type="hidden" id="cartId" name="cartId" />
+            <input type="hidden" id="cartItemId" name="cartItemId" />
+            <input type="hidden" id="bookId" name="bookId" />
+            <div class="form-group">
+                <label for="quantity">Quantity</label>
+                <input type="number" id="quantity" name="quantity" min="1" class="form-control" required />
+            </div>
+            <button type="submit" class="btn btn-primary">Add to Cart</button>
+            <button type="button" class="btn btn-secondary" onclick="hideQuantityForm()">Cancel</button>
+        </form>
+    </div>
+</div>
+<div id="deleteDiv" style="display: none;">
+    <div class="delete-form-container">
+        <form id="deleteForm" asp-action="Delete">
+            @Html.AntiForgeryToken()
+            <label for="quantity">Are you sure you want to delete this cart item?</label>
+            <input type="hidden" id="cartItemIdDelete" name="cartItemIdDelete" />
+            <button type="submit" class="btn btn-danger">Delete</button>
+            <button type="button" class="btn btn-secondary" onclick="hideDeleteForm()">Cancel</button>
+        </form>
+    </div>
+</div>
+
+<style>
+    #quantityForm, #deleteDiv {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+    }
+
+    .quantity-form-container, .delete-form-container {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        width: 300px;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+</style>
+
+<script>
+    function showQuantityForm(cartId, cartItemId, bookId) {
+        document.getElementById("quantityForm").style.display = "flex";
+        document.getElementById("cartId").value = cartId;
+        document.getElementById("cartItemId").value = cartItemId;
+        document.getElementById("bookId").value = bookId;
+    }
+
+    function hideQuantityForm() {
+        document.getElementById("quantityForm").style.display = "none";
+        document.getElementById("cartId").value = "";
+        document.getElementById("cartItemId").value = "";
+        document.getElementById("bookId").value = "";
+    }
+
+    function showDeleteForm(cartItemIdDelete) {
+        document.getElementById("deleteDiv").style.display = "flex";
+        document.getElementById("cartItemIdDelete").value = cartItemIdDelete;
+    }
+
+    function hideDeleteForm() {
+        document.getElementById("deleteDiv").style.display = "none";
+        document.getElementById("cartItemIdDelete").value = "";
+    }
+</script>
